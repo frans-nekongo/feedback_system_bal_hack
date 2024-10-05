@@ -25,10 +25,7 @@ type AuthRequest record {
 };
 
 type AuthResponse record {
-    string idNumber; // Unique ID of the user
     string name; // Name of the user
-    string userType; // Type of user: "student" or "lecturer"
-    string status; // e.g., "success" or "error"
     string message; // Additional message if needed (optional)
 };
 
@@ -89,7 +86,6 @@ public function main() returns error? {
 
 function getuserfromdb(string username, string userpassword) returns User|error? {
     mysql:Client mysqlClient = check new ("localhost", dbUser, dbPassword, database = "Memobase");
-
     // Create a parameterized query to fetch the user data based on input
     sql:ParameterizedQuery query = `SELECT * FROM user
                                     WHERE user_number = ${username} AND password = ${userpassword}`;
@@ -113,22 +109,20 @@ function getuserfromdb(string username, string userpassword) returns User|error?
 
     // Check if userRow is not null (i.e., if a user was found)
     if userRow is User {
-        // Log once before returning the result
+        // Log the found user
         log:printInfo("User found: " + userRow.toString());
 
         // Construct the AuthResponse from the user data
         AuthResponse response = {
-            idNumber: check userRow.user_number, // Map user_number to idNumber
-            name: check userRow.name,            // Map name to name
-            userType: check userRow.user_type,   // Map user_type to userType
-            status: "pending",                   // Status set to pending
-            message: "Request forwarded, no processing done."
+
+            name: username,
+            message: userRow.toJsonString()
         };
 
         // Log the response
         log:printInfo("AuthResponse: " + response.toString());
 
-        // Send the response to the authrep topic (Assuming sendAuthResponse is defined elsewhere)
+        // Send the response to the authrep topic
         check sendAuthResponse(response);
 
         return userRow; // Return the userRow if needed elsewhere
@@ -138,9 +132,6 @@ function getuserfromdb(string username, string userpassword) returns User|error?
         return error("User not found or invalid credentials.");
     }
 }
-
-
-
 
 // Function to send the authentication response to the authrep topic
 function sendAuthResponse(AuthResponse response) returns error? {
@@ -153,14 +144,13 @@ function sendAuthResponse(AuthResponse response) returns error? {
         value: response
     });
 
-    log:printInfo("Forwarded authentication request for user: " + response.name + " to authrep topic.");
+    log:printInfo("Forwarded authentication request for user: " + response.message + " to authrep topic.");
 }
 
-public type User record {|
-    string user_number; // Unique ID of the user
-    string name; // Name of the user
-    string user_type; // Type of user: "student" or "lecturer"
-    string status; // e.g., "success" or "error"
-    string message;
-    string password;
-|};
+// Define the User record type
+type User record {
+    string user_number;
+    string name;
+    string user_type;
+    string password; // Password should be handled securely
+};
