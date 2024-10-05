@@ -1,0 +1,13 @@
+{
+  "testNumber": "{{ faker.random.ushort }}",
+  "questions": [
+    {
+      "questionNumber": "{{ faker.random.ushort }}",
+      "answer": "Lari Checking Account Isle"
+    },
+    {
+      "questionNumber": "{{ faker.random.ushort }}",
+      "answer": "wireless Dale"
+    }
+  ]
+}

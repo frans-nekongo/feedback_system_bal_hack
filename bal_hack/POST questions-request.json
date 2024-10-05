@@ -1,0 +1,6 @@
+{
+  "questionNumber": "{{ faker.random.ushort }}",
+  "questionText": "Ouguiya Andorra Progressive",
+  "courseCode": "Focused pink",
+  "section": "intuitive Japan Hollow"
+}

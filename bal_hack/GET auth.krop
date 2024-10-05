@@ -1,0 +1,28 @@
+{
+  "details": {
+    "endpoint": "http://localhost:9090",
+    "path": "/auth",
+    "method": "GET",
+    "importedOperationId": "GET /auth",
+    "queryParams": [
+      {
+        "key": "username",
+        "value": "S001"
+      },
+      {
+        "key": "password",
+        "value": "pass123"
+      }
+    ],
+    "pathParams": []
+  },
+  "requests": [
+    {
+      "contentType": "none"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "GET",
+  "importStreamId": "53f5a000-6887-468c-8a0e-08b3cfbd4a90"
+}

@@ -1,0 +1,23 @@
+{
+  "details": {
+    "path": "/memos",
+    "method": "POST",
+    "importedOperationId": "POST /memos",
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ]
+  },
+  "requests": [
+    {
+      "location": "POST memos-request.json",
+      "contentType": "json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "POST",
+  "importStreamId": "53f5a000-6887-468c-8a0e-08b3cfbd4a90"
+}

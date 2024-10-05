@@ -1,0 +1,16 @@
+{
+  "details": {
+    "path": "/memosDue",
+    "method": "GET",
+    "importedOperationId": "GET /memosDue"
+  },
+  "requests": [
+    {
+      "contentType": "none"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "GET",
+  "importStreamId": "53f5a000-6887-468c-8a0e-08b3cfbd4a90"
+}

@@ -1,0 +1,167 @@
+
+openapi: 3.0.3
+info:
+  title: Feedback Loop Academic System API
+  description: API for managing academic test feedback and memos.
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090
+    description: Local development server
+
+paths:
+  /tests:
+    get:
+      summary: Retrieve all tests and their questions
+      description: Returns a list of tests, each with its test number and associated questions.
+      responses:
+        '200':
+          description: List of tests with their questions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    testNumber:
+                      type: string
+                      description: Unique identifier for the test.
+                    questions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          questionNumber:
+                            type: string
+                            description: Unique identifier for the question.
+                          questionText:
+                            type: string
+                            description: The text of the question.
+
+  /questions:
+    post:
+      summary: Send a question
+      description: Submit a new question for a test.
+      requestBody:
+        description: The question details to be sent.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                questionNumber:
+                  type: string
+                  description: Unique identifier for the question.
+                questionText:
+                  type: string
+                  description: The text of the question.
+                courseCode:
+                  type: string
+                  description: Code of the course the question belongs to.
+                section:
+                  type: string
+                  description: Section of the course.
+
+      responses:
+        '201':
+          description: Question successfully submitted.
+
+  /memosDue:
+    get:
+      summary: Retrieve all memos due
+      description: Returns a list of tests with their questions for memos that are due.
+      responses:
+        '200':
+          description: List of tests with memos due and their questions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    testNumber:
+                      type: string
+                      description: Unique identifier for the test.
+                    questions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          questionNumber:
+                            type: string
+                            description: Unique identifier for the question.
+                          questionText:
+                            type: string
+                            description: The text of the question.
+
+  /memos:
+    post:
+      summary: Send a memo
+      description: Submit a memo with the test number, questions, and answers.
+      requestBody:
+        description: The memo details to be sent.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                testNumber:
+                  type: string
+                  description: Unique identifier for the test.
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionNumber:
+                        type: string
+                        description: Unique identifier for the question.
+                      answer:
+                        type: string
+                        description: Answer for the question.
+      responses:
+        '201':
+          description: Memo successfully submitted.
+
+  /auth:
+    get:
+      summary: Check if a user exists
+      description: Verify if a user exists and retrieve their details.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+            description: Username to authenticate.
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+            description: Password to authenticate.
+      responses:
+        '200':
+          description: User details if found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  idNumber:
+                    type: string
+                    description: Unique ID of the user.
+                  name:
+                    type: string
+                    description: Name of the user.
+                  userType:
+                    type: string
+                    enum: [student, lecturer]
+                    description: Type of user.
+        '404':
+          description: User not found.
+        '401':
+          description: Invalid credentials.

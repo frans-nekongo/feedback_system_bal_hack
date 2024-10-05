@@ -1,0 +1,23 @@
+{
+  "details": {
+    "path": "/questions",
+    "method": "POST",
+    "importedOperationId": "POST /questions",
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ]
+  },
+  "requests": [
+    {
+      "location": "POST questions-request.json",
+      "contentType": "json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "POST",
+  "importStreamId": "53f5a000-6887-468c-8a0e-08b3cfbd4a90"
+}

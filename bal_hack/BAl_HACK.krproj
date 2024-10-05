@@ -1,0 +1,16 @@
+{
+  "id": "99fef98f-270c-446d-96f1-4a98bbe84ef0",
+  "importStreams": [
+    {
+      "id": "53f5a000-6887-468c-8a0e-08b3cfbd4a90",
+      "name": "open-api-file-importer",
+      "importerName": "OpenApiFileImporter",
+      "createMissingOperations": true,
+      "options": {
+        "path": "../openapi_Academic_System_API.yml"
+      }
+    }
+  ],
+  "authConfigs": [],
+  "certificates": []
+}
