@@ -7,11 +7,11 @@
     "queryParams": [
       {
         "key": "username",
-        "value": "S001"
+        "value": "S002"
       },
       {
         "key": "password",
-        "value": "pass123"
+        "value": "secure456"
       }
     ],
     "pathParams": []

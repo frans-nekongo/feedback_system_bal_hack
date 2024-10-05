@@ -144,7 +144,7 @@ function sendAuthResponse(AuthResponse response) returns error? {
         value: response
     });
 
-    log:printInfo("Forwarded authentication request for user: " + response.message + " to authrep topic.");
+    log:printInfo("Forwarded authentication request for user: " + response.name + " to authrep topic.");
 }
 
 // Define the User record type
