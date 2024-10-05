@@ -73,50 +73,48 @@ service / on ep0 {
     # inline_response_200_1 (User details if found.)
     # http:NotFound (User not found.)
     # http:Unauthorized (Invalid credentials.)
-     resource function get auth(string username, string password) returns string|inline_response_200_1|error {
-    AuthRequest request = {username: username, password: password};
+    resource function get auth(string username, string password) returns string|inline_response_200_1|error {
+        AuthRequest request = {username: username, password: password};
 
-    log:printInfo("Sending authentication request: " + request.toString());
+        log:printInfo("Sending authentication request: " + request.toString());
 
-    // Send the authentication request to the Kafka topic "authreq"
-    check self.authProducer->send({
-        topic: "authreq",
-        value: request
-    });
+        // Send the authentication request to the Kafka topic "authreq"
+        check self.authProducer->send({
+            topic: "authreq",
+            value: request
+        });
 
-    while true {
-        // Poll for messages from the authrep topic
-        AuthConsumerRecord[] records = check self.authConsumer->poll(15);
-        if (records.length() > 0) {
-            from AuthConsumerRecord orderRecord in records
-            do {
-                log:printInfo("Received record from authrep: " + orderRecord.value.toString());
+        while true {
+            // Poll for messages from the authrep topic
+            AuthConsumerRecord[] records = check self.authConsumer->poll(15);
+            if (records.length() > 0) {
+                from AuthConsumerRecord orderRecord in records
+                do {
+                    log:printInfo("Received record from authrep: " + orderRecord.value.toString());
 
-                // Deserialize the outer message
-                string name = orderRecord.value.name; // This should be a string
-                string innerMessage = orderRecord.value.message; // Get the inner message string
+                    // Deserialize the outer message
+                    string name = orderRecord.value.name; // This should be a string
+                    string innerMessage = orderRecord.value.message; // Get the inner message string
 
-                // Deserialize the inner message
-                json userData = check innerMessage.fromJsonString();
+                    // Deserialize the inner message
+                    json userData = check innerMessage.fromJsonString();
 
-                // Create the authResponse object
-                inline_response_200_1 authResponse = {
-                    idNumber: check userData.user_number,
-                    name: check userData.name,
-                    userType: check userData.user_type
+                    // Create the authResponse object
+                    inline_response_200_1 authResponse = {
+                        idNumber: check userData.user_number,
+                        name: check userData.name,
+                        userType: check userData.user_type
+                    };
+
+                    log:printInfo("Authentication successful for user: " + authResponse.toString());
+                    return authResponse; // Return the constructed authResponse
                 };
-
-                log:printInfo("Authentication successful for user: " + authResponse.toString());
-                return authResponse; // Return the constructed authResponse
-            };
+            }
         }
+
+        // Return unauthorized error if no valid response was received
+
     }
-
-    // Return unauthorized error if no valid response was received
-    
-}
-
-}
 
     // The following resources can be defined as needed
 
@@ -143,6 +141,6 @@ service / on ep0 {
     // #
     // # + payload - The question details to be sent. 
     // # + return - Question successfully submitted. 
-    // resource function post questions(@http:Payload questions_body payload) returns http:Created {
-    // }
-
+    resource function post questions(@http:Payload questions_body payload) returns http:Created {
+    }
+}
