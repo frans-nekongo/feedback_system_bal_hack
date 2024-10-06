@@ -8,11 +8,11 @@ public type tests_questions record {
     string questionText?;
 };
 
-public type memos_body record {
-    # Unique identifier for the test.
-    string testNumber?;
-    memos_questions[] questions?;
-};
+// public type memos_body record {
+//     # Unique identifier for the test.
+//     string testNumber?;
+//     memos_questions[] questions?;
+// };
 
 public type memos_questions record {
     # Unique identifier for the question.
@@ -21,28 +21,28 @@ public type memos_questions record {
     string answer?;
 };
 
-public type inline_response_200_1 record {
-    # Unique ID of the user.
-    string idNumber?;
-    # Name of the user.
-    string name?;
-    # Type of user.
-    "student"|"lecturer" userType?;
-};
+// public type inline_response_200_1 record {
+//     # Unique ID of the user.
+//     string idNumber?;
+//     # Name of the user.
+//     string name?;
+//     # Type of user.
+//     "student"|"lecturer" userType?;
+// };
 
-public type inline_response_200 record {
-    # Unique identifier for the test.
-    string testNumber?;
-    tests_questions[] questions?;
-};
+// public type inline_response_200 record {
+//     # Unique identifier for the test.
+//     string testNumber?;
+//     tests_questions[] questions?;
+// };
 
-public type questions_body record {
-    # Unique identifier for the question.
-    string questionNumber?;
-    # The text of the question.
-    string questionText?;
-    # Code of the course the question belongs to.
-    string courseCode?;
-    # Section of the course.
-    string section?;
-};
+// public type questions_body record {
+//     # Unique identifier for the question.
+//     string questionNumber?;
+//     # The text of the question.
+//     string questionText?;
+//     # Code of the course the question belongs to.
+//     string courseCode?;
+//     # Section of the course.
+//     string section?;
+// };

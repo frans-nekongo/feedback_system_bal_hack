@@ -39,6 +39,13 @@ type AuthResponse record {
     string message; // Additional message if needed (optional)
 };
 
+type questionRequest record {
+    string author;
+    string questionText;
+    string courseCode;
+    string section;
+};
+
 //  Create a subtype of `kafka:AnydataConsumerRecord`.
 // Define the structure of the message received from Kafka
 type AuthResponseMessage record {
@@ -53,8 +60,13 @@ type AuthConsumerRecord record {|
 |};
 
 service / on ep0 {
+
+    // kafka initialisation stuff random here..oh well
     private final kafka:Producer authProducer;
     private final kafka:Consumer authConsumer;
+
+    private final kafka:Producer queProducer;
+    private final kafka:Consumer queConsumer;
 
     function init() returns error? {
         self.authProducer = check new (kafka:DEFAULT_URL);
@@ -63,8 +75,15 @@ service / on ep0 {
             topics: "authrep"
         });
 
-        // Subscribe to the authrep topic
+        self.queProducer = check new (kafka:DEFAULT_URL);
+        self.queConsumer = check new (kafka:DEFAULT_URL, {
+            groupId: "authGroup",
+            topics: "querep"
+        });
+
+        // Subscribe to the topic
         check self.authConsumer->subscribe(["authrep"]);
+        check self.queConsumer->subscribe(["querep"]);
     }
 
     # Check if a user exists
@@ -77,13 +96,13 @@ service / on ep0 {
         AuthRequest request = {username: username, password: password};
 
         log:printInfo("Sending authentication request: " + request.toString());
-
+        //data go
         // Send the authentication request to the Kafka topic "authreq"
         check self.authProducer->send({
             topic: "authreq",
             value: request
         });
-
+        //data come
         while true {
             // Poll for messages from the authrep topic
             AuthConsumerRecord[] records = check self.authConsumer->poll(15);
@@ -141,6 +160,23 @@ service / on ep0 {
     // #
     // # + payload - The question details to be sent. 
     // # + return - Question successfully submitted. 
-    resource function post questions(@http:Payload questions_body payload) returns http:Created {
+    resource function post questions(@http:Payload questions_body payload) returns string|error {
+        log:printInfo("Received question request: " + payload.toString());
+
+        // Send the question details to the Kafka topic "quereq"
+        check self.queProducer->send({
+            topic: "quereq",
+            value: payload
+        });
+
+        log:printInfo("Question sent to Kafka topic quereq: " + payload.toString());
+
+        // Return success response
+        log:printInfo("Question successfully submitted to quereq.");
+
+        //add logic here to send succes mssg to client only after you get the response from the querep
+
+        return "Question successfully submitted.";
+
     }
 }

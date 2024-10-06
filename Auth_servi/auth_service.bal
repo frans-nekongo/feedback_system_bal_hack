@@ -59,24 +59,6 @@ public function main() returns error? {
             } else {
                 log:printError("Error: " + (check userFromDb).toString());
             }
-
-            // Forward the user as an AuthResponse
-            // AuthResponse response = {
-            //     idNumber: "", // No ID to forward yet
-            //     name: request.username,
-            //     userType: "", // No userType to forward yet
-            //     status: "pending", // Set status to pending for forwarded requests
-            //     message: "Request forwarded, no processing done."
-            // };
-
-            // // Send the response to the authrep topic
-            // kafka:Producer authProducer = check new (kafka:DEFAULT_URL);
-            // check authProducer->send({
-            //     topic: "authrep",
-            //     value: response
-            // });
-
-            // log:printInfo("Forwarded authentication request for user: " + request.username + " to authrep topic.");
         };
     }
 

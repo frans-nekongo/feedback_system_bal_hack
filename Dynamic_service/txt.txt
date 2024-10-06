@@ -1,0 +1,159 @@
+// import ballerina/cache;
+// import ballerina/io;
+
+import ballerina/io;
+import ballerina/log; // Import the logging module
+// import ballerina/sql;
+import ballerinax/kafka;
+// import ballerinax/mysql;
+import ballerinax/mysql.driver as _;
+
+// Database configuration
+string dbUrl = "localhost:3306";
+string dbUser = "RXD";
+string dbPassword = "100101";
+string dbName = "Memobase";
+
+configurable string USER = "RXD";
+configurable string PASSWORD = "100101";
+configurable string HOST = "localhost";
+configurable int PORT = 3306;
+configurable string DATABASE = "Memobase";
+
+// Request and response record definitions
+type AuthRequest record {
+    string username;
+    string password;
+};
+
+type AuthResponse record {
+    string name; // Name of the user
+    string message; // Additional message if needed (optional)
+};
+
+type QueRequest record {
+    string author;
+    string questionText;
+    string courseCode;
+    string section;
+};
+
+public function main() returns error? {
+
+    // Poll for new messages from the authreq topic
+   
+        string|error quereqConsumerResult = check quereqConsumer();
+        log:printInfo(check quereqConsumerResult);
+        
+
+
+}
+
+// Function to process authentication requests
+type status record {|
+
+|};
+
+type question record {
+
+};
+
+
+function quereqConsumer() returns string|error {
+
+    while true {
+// Poll for new messages from the quereq topic
+
+    kafka:Consumer queConsumer = check new (kafka:DEFAULT_URL, {
+        groupId: "queGroup", // Define the group for the consumer
+        topics: "quereq" // Subscribe to the quereq topic
+    });
+
+    QueRequest[] requests = check queConsumer->pollPayload(15); // Poll with a timeout of 15 seconds
+
+    if (requests.length() > 0) {
+        log:printInfo("Received " + requests.length().toString() + " request(s) from the quereq topic.");
+    }
+
+    from QueRequest request in requests
+    do {
+        // Log the received request
+        log:printInfo("Received request: question =" + request.questionText + ", author =" + request.author);
+
+        // Send question to database to add it
+        string sendQuestionDBResult = sendquestionDB(requests);
+        log:printInfo("Database result for question submission: " + sendQuestionDBResult);
+    };
+    }
+    
+}
+
+// function getuserfromdb(string username, string userpassword) returns User|error? {
+//     mysql:Client mysqlClient = check new ("localhost", dbUser, dbPassword, database = "Memobase");
+//     // Create a parameterized query to fetch the user data based on input
+//     sql:ParameterizedQuery query = `SELECT * FROM user
+//                                     WHERE user_number = ${username} AND password = ${userpassword}`;
+
+//     // Execute the query and get the result stream
+//     stream<User, sql:Error?> resultStream = mysqlClient->query(query);
+
+//     // Initialize the userRow variable with `()`
+//     User? userRow = ();
+
+//     // Iterate through the stream to fetch the user data
+//     error? err = resultStream.forEach(function(User user) {
+//         // Assign the first result to userRow and exit the loop
+//         userRow = user;
+//         return; // This stops after the first match is found
+//     });
+
+//     // Close the result stream and client connection
+//     check resultStream.close();
+//     check mysqlClient.close();
+
+//     // Check if userRow is not null (i.e., if a user was found)
+//     if userRow is User {
+//         // Log the found user
+//         log:printInfo("User found: " + userRow.toString());
+
+//         // Construct the AuthResponse from the user data
+//         AuthResponse response = {
+
+//             name: username,
+//             message: userRow.toJsonString()
+//         };
+
+//         // Log the response
+//         log:printInfo("AuthResponse: " + response.toString());
+
+//         // Send the response to the authrep topic
+//         check sendAuthResponse(response);
+
+//         return userRow; // Return the userRow if needed elsewhere
+//     } else if err is sql:Error {
+//         return error("SQL Error: " + err.message());
+//     } else {
+//         return error("User not found or invalid credentials.");
+//     }
+// }
+
+function sendquestionDB(QueRequest[] requests) returns string {
+    //sample null code
+    io:print("Start processing the CSV file from ");
+    string jack = "";
+    return jack;
+}
+
+// Function to send the authentication response to the authrep topic
+function sendAuthResponse(AuthResponse response) returns error? {
+    // Create a producer for the authrep topic
+    kafka:Producer authProducer = check new (kafka:DEFAULT_URL);
+
+    // Send the response
+    check authProducer->send({
+        topic: "authrep",
+        value: response
+    });
+
+    log:printInfo("Forwarded authentication request for user: " + response.name + " to authrep topic.");
+}

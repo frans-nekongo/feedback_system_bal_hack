@@ -4,6 +4,12 @@
     "path": "/auth",
     "method": "GET",
     "importedOperationId": "GET /auth",
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ],
     "queryParams": [
       {
         "key": "username",
@@ -18,7 +24,8 @@
   },
   "requests": [
     {
-      "contentType": "none"
+      "location": "GET auth-request.json",
+      "contentType": "json"
     }
   ],
   "operationType": "unary",

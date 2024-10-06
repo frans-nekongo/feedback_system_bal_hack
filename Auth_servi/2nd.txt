@@ -1,58 +1,7 @@
-import ballerina/http;
-import ballerinax/kafka;
-import ballerina/log; // Import the logging module
+list of topics
 
-// Request and response record definitions
-type AuthRequest record {
-    string username;
-    string password;
-};
+authreq
+authrep
 
-type AuthResponse record {
-    string idNumber; // Unique ID of the user
-    string name;     // Name of the user
-    string userType; // Type of user: "student" or "lecturer"
-    string status;   // e.g., "success" or "error"
-    string message;  // Additional message if needed (optional)
-};
-
-public function main() returns error? {
-    // Create a consumer for the authreq topic
-    kafka:Consumer authConsumer = check new (kafka:DEFAULT_URL, {
-        groupId: "authGroup", // Define the group for the consumer
-        topics: "authreq" // Subscribe to the authreq topic
-    });
-
-    while true {
-        // Poll for new messages from the authreq topic
-        AuthRequest[] requests = check authConsumer->pollPayload(15); // Poll with a timeout of 15 seconds
-        
-        if (requests.length() > 0) {
-            log:printInfo("Received " + requests.length().toString() + " authentication request(s) from the authreq topic.");
-        }
-
-        from AuthRequest request in requests
-            do {
-                // Log the received request
-                log:printInfo("Received authentication request: username=" + request.username + ", password=" + request.password);
-
-                // Forward the request as an AuthResponse
-                AuthResponse response = {
-                    idNumber: "", // No ID to forward yet
-                    name: request.username,
-                    userType: "", // No userType to forward yet
-                    status: "pending", // Set status to pending for forwarded requests
-                    message: "Request forwarded, no processing done."
-                };
-
-                // Send the response to the authrep topic
-                kafka:Producer authProducer = check new (kafka:DEFAULT_URL);
-                check authProducer->send({
-                    topic: "authrep",
-                    value: response
-                });
-
-                log:printInfo("Forwarded authentication request for user: " + request.username + " to authrep topic.");
-            };
-    }
-}
+quereq
+querep
