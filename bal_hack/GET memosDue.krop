@@ -2,11 +2,19 @@
   "details": {
     "path": "/memosDue",
     "method": "GET",
-    "importedOperationId": "GET /memosDue"
+    "importedOperationId": "GET /memosDue",
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "pathParams": []
   },
   "requests": [
     {
-      "contentType": "none"
+      "location": "GET memosDue-request.json",
+      "contentType": "json"
     }
   ],
   "operationType": "unary",

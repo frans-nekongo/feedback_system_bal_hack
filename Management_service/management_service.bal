@@ -17,7 +17,22 @@ type questions_body record {
 };
 
 type inline_response_200 record {
-    // Define fields as needed
+    string questionNumber;
+    string questionText;
+    string courseCode;
+    string section;
+    string author;
+    string answer;
+    string testNumber;
+};
+
+type MemDueResponseMessage record {
+    int question_number;
+    string test_number;
+    string author;
+    string question_text;
+    string course_code;
+    string section;
 };
 
 type inline_response_200_1 record {
@@ -59,6 +74,11 @@ type AuthConsumerRecord record {|
     AuthResponseMessage value; // Change this to the new type
 |};
 
+type memDuerepConsumerRecord record {|
+    *kafka:AnydataConsumerRecord;
+    json value; // Treat the value as raw JSON
+|};
+
 service / on ep0 {
 
     // kafka initialisation stuff random here..oh well
@@ -67,6 +87,12 @@ service / on ep0 {
 
     private final kafka:Producer queProducer;
     private final kafka:Consumer queConsumer;
+
+    private final kafka:Producer memProducer;
+    private final kafka:Consumer memConsumer;
+
+    private final kafka:Producer memQProducer;
+    private final kafka:Consumer memQConsumer;
 
     function init() returns error? {
         self.authProducer = check new (kafka:DEFAULT_URL);
@@ -77,13 +103,27 @@ service / on ep0 {
 
         self.queProducer = check new (kafka:DEFAULT_URL);
         self.queConsumer = check new (kafka:DEFAULT_URL, {
-            groupId: "authGroup",
+            groupId: "queGroup", //was authGroup
             topics: "querep"
         });
+
+        self.memProducer = check new (kafka:DEFAULT_URL);
+        self.memConsumer = check new (kafka:DEFAULT_URL, {
+            groupId: "memGroup",
+            topics: "memDuerep"
+        });
+
+        self.memQProducer = check new (kafka:DEFAULT_URL);
+        // self.memConsumer = check new (kafka:DEFAULT_URL, {
+        //     groupId: "memGroup",
+        //     topics: "memDuerep"
+        // });
 
         // Subscribe to the topic
         check self.authConsumer->subscribe(["authrep"]);
         check self.queConsumer->subscribe(["querep"]);
+        check self.memConsumer->subscribe(["memDuerep"]);
+
     }
 
     # Check if a user exists
@@ -140,8 +180,39 @@ service / on ep0 {
     // # Retrieve all memos due
     // #
     // # + return - List of tests with memos due and their questions. 
-    // resource function get memosDue() returns inline_response_200[] {
-    // }
+    resource function get memosDue() returns json|error {
+        // Log the request for memos
+        log:printInfo("Sending memos due request to Kafka topic: memDuereq.");
+
+        // Create a JSON message for the request
+        json message = {
+            request_type: "memos_due_request",
+            details: "Requesting memos due"
+        };
+
+        // Send the request to the Kafka topic "memDuereq"
+        check self.memProducer->send({
+            topic: "memDuereq",
+            value: message.toJsonString() // Convert JSON to string before sending
+        });
+
+        // Wait for the response from the Kafka topic "memDuerep"
+        while true {
+            // Poll for messages from the "memDuerep" topic with a 15-second timeout
+            memDuerepConsumerRecord[] records = check self.memConsumer->poll(15);
+
+            // If records are received, process them
+            if (records.length() > 0) {
+                foreach memDuerepConsumerRecord memoRecord in records {
+                    // Log the received message from Kafka
+                    log:printInfo("Received message from memDuerep: " + memoRecord.value.toString());
+
+                    // Return the JSON value directly
+                    return memoRecord.value;
+                }
+            }
+        }
+    }
 
     // # Retrieve all tests and their questions
     // #
@@ -153,8 +224,24 @@ service / on ep0 {
     // #
     // # + payload - The memo details to be sent. 
     // # + return - Memo successfully submitted. 
-    // resource function post memos(@http:Payload memos_body payload) returns http:Created {
-    // }
+    resource function post memos(@http:Payload memos_body payload) returns string|error {
+        log:printInfo("Received question request: " + payload.toString());
+
+        // Send the question details to the Kafka topic "quereq"
+        check self.memQProducer->send({
+            topic: "memreq",
+            value: payload
+        });
+
+        log:printInfo("Memo sent to Kafka topic memreq: " + payload.toString());
+
+        // Return success response
+        log:printInfo("Memo successfully submitted to memreq.");
+
+        //add logic here to send succes mssg to client only after you get the response from the querep
+
+        return "Memo successfully submitted.";
+    }
 
     // # Send a question
     // #
