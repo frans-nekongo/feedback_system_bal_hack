@@ -1,12 +1,12 @@
 {
-  "testNumber": "{{ faker.random.ushort }}",
+  "testNumber": "1",
   "questions": [
     {
-      "questionNumber": "{{ faker.random.ushort }}",
+      "questionNumber": "6",
       "answer": "Lari Checking Account Isle"
     },
     {
-      "questionNumber": "{{ faker.random.ushort }}",
+      "questionNumber": "7",
       "answer": "wireless Dale"
     }
   ]

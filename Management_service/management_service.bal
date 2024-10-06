@@ -217,8 +217,39 @@ service / on ep0 {
     // # Retrieve all tests and their questions
     // #
     // # + return - List of tests with their questions. 
-    // resource function get tests() returns inline_response_200[] {
-    // }
+    resource function get tests() returns json|error {
+        // Log the request for test
+        log:printInfo("Sending test get request to Kafka topic: memDuereq.");
+
+        // Create a JSON message for the request
+        json message = {
+            request_type: "memos_due_request",
+            details: "Requesting memos due"
+        };
+
+        // Send the request to the Kafka topic "memDuereq"
+        check self.memProducer->send({
+            topic: "memDuereq",
+            value: message.toJsonString() // Convert JSON to string before sending
+        });
+
+        // Wait for the response from the Kafka topic "memDuerep"
+        while true {
+            // Poll for messages from the "memDuerep" topic with a 15-second timeout
+            memDuerepConsumerRecord[] records = check self.memConsumer->poll(15);
+
+            // If records are received, process them
+            if (records.length() > 0) {
+                foreach memDuerepConsumerRecord memoRecord in records {
+                    // Log the received message from Kafka
+                    log:printInfo("Received message from memDuerep: " + memoRecord.value.toString());
+
+                    // Return the JSON value directly
+                    return memoRecord.value;
+                }
+            }
+        }
+    }
 
     // # Send a memo
     // #

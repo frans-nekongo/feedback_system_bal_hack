@@ -66,7 +66,7 @@ kafka:Consumer memDueConsumer = check new (kafka:DEFAULT_URL, {
 
 kafka:Consumer memConsumer = check new (kafka:DEFAULT_URL, {
     groupId: "memGroup",
-    topics: "memreq " // Subscribe to the memDuereq topic
+    topics: "memreq" // Subscribe to the memDuereq topic
 });
 
 // Kafka Producer
@@ -74,8 +74,9 @@ kafka:Producer memDuerepProducer = check new (kafka:DEFAULT_URL);
 
 public function main() returns error? {
     // Start both consumers concurrently
-    _ = start quereqConsumer();
-    _ = start memoduerequest();
+    // _ = start quereqConsumer();
+    // _ = start memoduerequest();
+    _ = start memreqConsumer();
 
     // Keep the application running
     while true {
@@ -299,23 +300,48 @@ function memreqConsumer() returns string|error {
 
         // Process each message received
         foreach memDuerepConsumerRecord memoMessage in messages {
-            // Now 'value' is a required field and can be accessed directly
+            // Directly access the value as MemRequest since it's already of that type
             MemRequest memRequest = memoMessage.value;
 
-            // Log the received request
+            // Log the received memreq message
             log:printInfo("Received memreq message: " + memRequest.toString());
 
             // Iterate over the questions and print their answers and test number
             foreach QuestionAnswer question in memRequest.questions {
                 log:printInfo("Test Number: " + memRequest.testNumber + ", Question Number: " + question.questionNumber + ", Answer: " + question.answer);
+
+                // Call the postmemo function to insert/update the answer in the database
+                string|error result = postmemo(memRequest.testNumber, question.questionNumber, question.answer);
+                if (result is error) {
+                    log:printError("Failed to update answer in database: " + result.message());
+                } else {
+                    log:printInfo(result); // Log the success message returned from postmemo
+                }
             }
         }
     }
 }
 
 
-
-
-function postquestion(){
+// Function to update the answer in the database based on the test number and question number
+function postmemo(string testNumber, string questionNumber, string answer) returns string|error {
+    log:printInfo("Updating answer in the database for Test Number: " + testNumber + ", Question Number: " + questionNumber);
     
+    // Create a MySQL client to connect to the database
+    mysql:Client mysqlClient = check new ("localhost", dbUser, dbPassword, database = dbName);
+    
+    // Prepare the SQL update query
+    sql:ParameterizedQuery updateQuery = `UPDATE question SET answer = ${answer} WHERE test_number = ${testNumber} AND question_number = ${questionNumber}`;
+
+    // Log the update query for debugging
+    log:printInfo("Executing update query: ");
+
+    // Execute the update query
+    sql:ExecutionResult executionResult = check mysqlClient->execute(updateQuery);
+
+    // Close the database connection
+    check mysqlClient.close();
+
+    log:printInfo("Successfully updated answer in the database." + executionResult.toString());
+    return "Answer successfully updated for Test Number: " + testNumber + ", Question Number: " + questionNumber;
 }
