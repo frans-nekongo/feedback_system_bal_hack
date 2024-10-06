@@ -272,4 +272,17 @@ function getQuestionsWithoutAnswers() returns QuestionRecord[]|error {
     return questions;
 }
 
-function postquestion(){}
+//function to most memo
+function memreqConsumer() returns string|error {
+    while true {
+        log:printInfo("Polling for memreq messages...");
+
+        // Poll for new messages from the memreq  topic
+        QueRequest[] requests = check memConsumer->pollPayload(15); // Poll with a timeout of 15 seconds
+
+    }
+}
+
+function postquestion(){
+    
+}
