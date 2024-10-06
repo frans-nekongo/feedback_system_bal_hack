@@ -2,11 +2,19 @@
   "details": {
     "path": "/tests",
     "method": "GET",
-    "importedOperationId": "GET /tests"
+    "importedOperationId": "GET /tests",
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "pathParams": []
   },
   "requests": [
     {
-      "contentType": "none"
+      "location": "GET tests-request.json",
+      "contentType": "json"
     }
   ],
   "operationType": "unary",

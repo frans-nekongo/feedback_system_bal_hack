@@ -54,6 +54,11 @@ kafka:Consumer memDueConsumer = check new (kafka:DEFAULT_URL, {
     topics: "memDuereq" // Subscribe to the memDuereq topic
 });
 
+kafka:Consumer memConsumer = check new (kafka:DEFAULT_URL, {
+    groupId: "memGroup",
+    topics: "memreq " // Subscribe to the memDuereq topic
+});
+
 // Kafka Producer
 kafka:Producer memDuerepProducer = check new (kafka:DEFAULT_URL);
 
@@ -267,3 +272,4 @@ function getQuestionsWithoutAnswers() returns QuestionRecord[]|error {
     return questions;
 }
 
+function postquestion(){}
