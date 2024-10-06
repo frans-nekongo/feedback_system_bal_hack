@@ -34,6 +34,16 @@ type QuestionRecord record {
     string? test_number; // Optional as it can be null
 };
 
+// Define a record to represent the incoming memreq message
+type QuestionAnswer record {
+    string questionNumber;
+    string answer;
+};
+
+type MemRequest record {
+    string testNumber;
+    QuestionAnswer[] questions;
+};
 
 type MemodueRequest record {
     string request_type;
@@ -273,15 +283,38 @@ function getQuestionsWithoutAnswers() returns QuestionRecord[]|error {
 }
 
 //function to most memo
+type memDuerepConsumerRecord record {|
+    *kafka:AnydataConsumerRecord; 
+    MemRequest value; // Add this as a required field
+|};
+
+
+
 function memreqConsumer() returns string|error {
     while true {
         log:printInfo("Polling for memreq messages...");
 
-        // Poll for new messages from the memreq  topic
-        QueRequest[] requests = check memConsumer->pollPayload(15); // Poll with a timeout of 15 seconds
+        // Poll for new messages from the memreq topic
+        memDuerepConsumerRecord[] messages = check memConsumer->poll(15); // Poll with a timeout of 15 seconds
 
+        // Process each message received
+        foreach memDuerepConsumerRecord memoMessage in messages {
+            // Now 'value' is a required field and can be accessed directly
+            MemRequest memRequest = memoMessage.value;
+
+            // Log the received request
+            log:printInfo("Received memreq message: " + memRequest.toString());
+
+            // Iterate over the questions and print their answers and test number
+            foreach QuestionAnswer question in memRequest.questions {
+                log:printInfo("Test Number: " + memRequest.testNumber + ", Question Number: " + question.questionNumber + ", Answer: " + question.answer);
+            }
+        }
     }
 }
+
+
+
 
 function postquestion(){
     
