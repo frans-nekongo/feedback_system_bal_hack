@@ -24,6 +24,7 @@ type Question record {
     string courseCode;
     string section;
 };
+
 type QuestionRecord record {
     int question_number;
     string question_text;
@@ -53,6 +54,11 @@ type memDuereqConsumerRecord record {
     string value; // We are expecting the request value as a string
 };
 
+type memDuerepConsumerRecord record {|
+    *kafka:AnydataConsumerRecord;
+    MemRequest value; // Add this as a required field
+|};
+
 // Kafka Consumers
 kafka:Consumer queConsumer = check new (kafka:DEFAULT_URL, {
     groupId: "queGroup",
@@ -66,7 +72,12 @@ kafka:Consumer memDueConsumer = check new (kafka:DEFAULT_URL, {
 
 kafka:Consumer memConsumer = check new (kafka:DEFAULT_URL, {
     groupId: "memGroup",
-    topics: "memreq" // Subscribe to the memDuereq topic
+    topics: "memreq" // Subscribe to the memreq topic
+});
+
+kafka:Consumer testConsumer = check new (kafka:DEFAULT_URL, {
+    groupId: "testsGroup",
+    topics: "testreq" // Subscribe to the testreq topic
 });
 
 // Kafka Producer
@@ -74,9 +85,10 @@ kafka:Producer memDuerepProducer = check new (kafka:DEFAULT_URL);
 
 public function main() returns error? {
     // Start both consumers concurrently
-    // _ = start quereqConsumer();
-    // _ = start memoduerequest();
+    _ = start quereqConsumer();
+    _ = start memoduerequest();
     _ = start memreqConsumer();
+    _ = start gettestrequest();
 
     // Keep the application running
     while true {
@@ -283,14 +295,98 @@ function getQuestionsWithoutAnswers() returns QuestionRecord[]|error {
     return questions;
 }
 
-//function to most memo
-type memDuerepConsumerRecord record {|
-    *kafka:AnydataConsumerRecord; 
-    MemRequest value; // Add this as a required field
-|};
+//function to get tests
+function gettestrequest() returns string|error {
+    kafka:Consumer testConsumer = check new (kafka:DEFAULT_URL, {
+        groupId: "testsGroup", // Define the group for the consumer
+        topics: "testreq" // Subscribe to the testreq topic
+    });
 
+    while true {
+        log:printInfo("Polling for testreq messages..."); // Log the start of polling
 
+        // Poll for new messages from the testreq topic
+        MemodueRequest[] messages = check testConsumer->pollPayload(15); // Poll with a 15-second timeout
 
+        if (messages.length() > 0) {
+            log:printInfo("Received " + messages.length().toString() + " request(s) from testreq topic.");
+
+            // Process the received messages
+            foreach MemodueRequest msg in messages {
+                // Log the received message
+                log:printInfo("Received raw message: " + msg.toString()); // Log the raw message
+
+                // Extract the request type
+                string requestType = msg.request_type; // Directly access the field
+
+                if (requestType == "test_get_request") {
+                    // Query the database for questions with NULL or empty answers
+                    QuestionRecord[] questionsWithAnswers = check gettestfromdb();
+                    log:printInfo("Retrieved " + questionsWithAnswers.length().toString() + " question(s) with no answers.");
+
+                    // Prepare the response message to send to Kafka
+                    json[] responseMessage = []; // Initialize responseMessage as an empty array
+                    foreach QuestionRecord question in questionsWithAnswers {
+                        // Collect each question into a response object
+                        json questionData = {
+                            question_number: question.question_number,
+                            test_number: question.test_number,
+                            author: question.author,
+                            question_text: question.question_text,
+                            course_code: question.course_code,
+                            section: question.section,
+                            answer: question.answer
+                        };
+
+                        // Add question data to the response array using indexing
+                        responseMessage[responseMessage.length()] = questionData; // Append questionData to the array
+                    }
+
+                    // Log the complete response message before sending
+                    log:printInfo("Sending all questions with answers to testrep topic: " + responseMessage.toJsonString());
+
+                    // Send the complete response message to the Kafka testrep topic
+                    check memDuerepProducer->send({
+                        topic: "testrep",
+                        value: responseMessage.toJsonString() // Send as a JSON string
+                    });
+
+                    log:printInfo("Successfully sent all questions to the testrep topic.");
+                }
+            }
+        } else {
+            log:printInfo("No messages received from testreq topic.");
+        }
+    }
+}
+
+function gettestfromdb() returns QuestionRecord[]|error {
+    mysql:Client mysqlClient = check new ("localhost", dbUser, dbPassword, database = dbName);
+
+    // Create a query to get questions with NULL or empty answers
+    sql:ParameterizedQuery query = `SELECT question_number, author, question_text, course_code, answer, test_number, section 
+                                    FROM question`;
+
+    // Execute the query and get the result stream
+    stream<QuestionRecord, sql:Error?> resultStream = mysqlClient->query(query);
+
+    // Initialize an array to store questions
+    QuestionRecord[] questions = [];
+
+    // Process the result stream
+    error? err = resultStream.forEach(function(QuestionRecord question) {
+        questions.push(question);
+    });
+
+    // Close the result stream and client connection
+    check resultStream.close();
+    check mysqlClient.close();
+
+    // Return the list of questions
+    return questions;
+}
+
+//function to post memo
 function memreqConsumer() returns string|error {
     while true {
         log:printInfo("Polling for memreq messages...");
@@ -322,14 +418,13 @@ function memreqConsumer() returns string|error {
     }
 }
 
-
 // Function to update the answer in the database based on the test number and question number
 function postmemo(string testNumber, string questionNumber, string answer) returns string|error {
     log:printInfo("Updating answer in the database for Test Number: " + testNumber + ", Question Number: " + questionNumber);
-    
+
     // Create a MySQL client to connect to the database
     mysql:Client mysqlClient = check new ("localhost", dbUser, dbPassword, database = dbName);
-    
+
     // Prepare the SQL update query
     sql:ParameterizedQuery updateQuery = `UPDATE question SET answer = ${answer} WHERE test_number = ${testNumber} AND question_number = ${questionNumber}`;
 

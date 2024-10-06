@@ -79,6 +79,11 @@ type memDuerepConsumerRecord record {|
     json value; // Treat the value as raw JSON
 |};
 
+type testrepConsumerRecord record {|
+    *kafka:AnydataConsumerRecord;
+    json value; // Treat the value as raw JSON
+|};
+
 service / on ep0 {
 
     // kafka initialisation stuff random here..oh well
@@ -93,6 +98,9 @@ service / on ep0 {
 
     private final kafka:Producer memQProducer;
     private final kafka:Consumer memQConsumer;
+
+    private final kafka:Producer testreqProducer;
+    private final kafka:Consumer testrepConsumer;
 
     function init() returns error? {
         self.authProducer = check new (kafka:DEFAULT_URL);
@@ -119,10 +127,17 @@ service / on ep0 {
         //     topics: "memDuerep"
         // });
 
+        self.testreqProducer = check new (kafka:DEFAULT_URL);
+        self.testrepConsumer = check new (kafka:DEFAULT_URL, {
+            groupId: "testGroup",
+            topics: "testrep"
+        });
+
         // Subscribe to the topic
         check self.authConsumer->subscribe(["authrep"]);
         check self.queConsumer->subscribe(["querep"]);
         check self.memConsumer->subscribe(["memDuerep"]);
+        check self.testrepConsumer->subscribe(["testrep"]);
 
     }
 
@@ -219,30 +234,30 @@ service / on ep0 {
     // # + return - List of tests with their questions. 
     resource function get tests() returns json|error {
         // Log the request for test
-        log:printInfo("Sending test get request to Kafka topic: memDuereq.");
+        log:printInfo("Sending test get request to Kafka topic: testreq.");
 
         // Create a JSON message for the request
         json message = {
-            request_type: "memos_due_request",
-            details: "Requesting memos due"
+            request_type: "test_get_request",
+            details: "Requesting tests"
         };
 
-        // Send the request to the Kafka topic "memDuereq"
-        check self.memProducer->send({
-            topic: "memDuereq",
+        // Send the request to the Kafka topic "testreq"
+        check self.testreqProducer->send({
+            topic: "testreq",
             value: message.toJsonString() // Convert JSON to string before sending
         });
 
-        // Wait for the response from the Kafka topic "memDuerep"
+        // Wait for the response from the Kafka topic "testrep"
         while true {
-            // Poll for messages from the "memDuerep" topic with a 15-second timeout
-            memDuerepConsumerRecord[] records = check self.memConsumer->poll(15);
+            // Poll for messages from the "testrep" topic with a 15-second timeout
+            testrepConsumerRecord[] records = check self.testrepConsumer->poll(15);
 
             // If records are received, process them
             if (records.length() > 0) {
-                foreach memDuerepConsumerRecord memoRecord in records {
+                foreach testrepConsumerRecord memoRecord in records {
                     // Log the received message from Kafka
-                    log:printInfo("Received message from memDuerep: " + memoRecord.value.toString());
+                    log:printInfo("Received message from testrep: " + memoRecord.value.toString());
 
                     // Return the JSON value directly
                     return memoRecord.value;
