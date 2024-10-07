@@ -17,9 +17,3 @@ testrep
 
 
 post question
-{
-  "author": "niggah laties nnn",
-  "questionText": "dog farts  day",
-  "courseCode": "milk canes k",
-  "section": "yes dogy Japan Hollow"
-}

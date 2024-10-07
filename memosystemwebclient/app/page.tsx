@@ -1,9 +1,8 @@
-// app/page.tsx or app/home/page.tsx (depending on your structure)
+// app/page.tsx or app/home/page.tsx
 "use client"; // Mark this file as a client component
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Change to next/navigation
-import { authenticate } from "./components/auth"; // Adjust the path as necessary
+import { useRouter } from "next/navigation";
 
 export default function Home() {
     const [username, setUsername] = useState("");
@@ -11,28 +10,42 @@ export default function Home() {
     const [error, setError] = useState("");
     const router = useRouter();
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const role = authenticate(username, password);
 
-        if (role) {
-            // Redirect based on user role
-            if (role === "student") {
-                router.push("/user");
-            } else if (role === "admin") {
-                router.push("/admin");
+        try {
+            const response = await fetch(`http://localhost:9090/auth?username=${username}&password=${password}`);
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Error ${response.status}: ${text}`);
             }
-        } else {
-            setError("Invalid username or password");
+
+            const data = await response.json();
+            const { userType } = data;
+
+            if (userType === "student") {
+                router.push("/user");
+            } else if (userType === "lecturer") {
+                router.push("/admin");
+            } else {
+                setError("Unknown user type");
+            }
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(`Failed to authenticate: ${err.message}`);
+            } else {
+                setError("Failed to authenticate: An unknown error occurred.");
+            }
         }
     };
 
     return (
-        <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-                <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
-                <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 max-w-sm w-full">
-                    {error && <p className="text-red-500 mb-4">{error}</p>}
+        <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-r from-blue-50 to-blue-100">
+            <main className="flex flex-col gap-8 w-full max-w-sm bg-white shadow-lg rounded-lg p-8">
+                <h1 className="text-3xl font-bold text-gray-800 text-center">Welcome Back! 👋</h1>
+                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+                <form onSubmit={handleSubmit} className="flex flex-col">
                     <div className="mb-4">
                         <label htmlFor="user-number" className="block text-sm font-medium text-gray-700">
                             User Number
@@ -69,8 +82,8 @@ export default function Home() {
                     </button>
                 </form>
             </main>
-            <footer className="text-center text-gray-500 text-sm">
-                &copy; {new Date().getFullYear()} Your Company Name
+            <footer className="mt-6 text-center text-gray-500 text-sm">
+                &copy; {new Date().getFullYear()} MEMO ME THIS BY FRAN THE HUMAN
             </footer>
         </div>
     );
