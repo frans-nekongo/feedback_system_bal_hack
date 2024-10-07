@@ -91,7 +91,7 @@ export default function MyTestsView() {
                 {Object.keys(groupedTests).map((testNumber) => (
                     <li key={testNumber} className="mb-6 border-b border-gray-300 pb-4">
                         <h3
-                            className="font-semibold text-xl cursor-pointer flex items-center justify-between hover:text-blue-500"
+                            className="text-black font-semibold text-xl cursor-pointer flex items-center justify-between hover:text-blue-500"
                             onClick={() => toggleTestCollapse(testNumber)}
                         >
                             {`Test ${testNumber}`}

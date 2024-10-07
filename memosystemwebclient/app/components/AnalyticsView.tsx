@@ -117,15 +117,15 @@ export default function AnalyticsView() {
         <div className="p-4">
             <h2 className="text-black text-xl font-bold mb-4">Analytics</h2>
             <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-2">Questions by Section</h3>
+                <h3 className="text-black text-lg font-semibold mb-2">Questions by Section</h3>
                 <Bar data={sectionChartData} options={chartOptions} />
             </div>
             <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-2">Questions by Author</h3>
+                <h3 className="text-black text-lg font-semibold mb-2">Questions by Author</h3>
                 <Bar data={authorChartData} options={chartOptions} />
             </div>
             <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-2">More Coming Soon...</h3>
+                <h3 className="text-black text-lg font-semibold mb-2">More Coming Soon...</h3>
                 <p>Stay tuned for more detailed analytics.</p>
             </div>
         </div>

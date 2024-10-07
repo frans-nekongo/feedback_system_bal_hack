@@ -56,7 +56,7 @@ export default function Home() {
                             required
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring focus:ring-blue-300"
+                            className="text-black mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring focus:ring-blue-300"
                             placeholder="Enter your user number"
                         />
                     </div>
@@ -70,7 +70,7 @@ export default function Home() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring focus:ring-blue-300"
+                            className="text-black mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring focus:ring-blue-300"
                             placeholder="Enter your password"
                         />
                     </div>
