@@ -8,7 +8,8 @@ import AnalyticsView from "../components/AnalyticsView";
 import { FaBook, FaClipboardList, FaChartBar } from "react-icons/fa"; // Import your desired icons
 
 export default function AdminPage() {
-    const [activeView, setActiveView] = useState<"createCourse" | "memosDue" | "analytics" | null>(null);
+    // Set the default active view to "memosDue"
+    const [activeView, setActiveView] = useState<"createCourse" | "memosDue" | "analytics">("memosDue");
 
     const handleCardClick = (view: "createCourse" | "memosDue" | "analytics") => {
         setActiveView(view); // Set the active view based on which card is clicked
@@ -17,7 +18,7 @@ export default function AdminPage() {
     return (
         <div className="flex min-h-screen">
             {/* Left Div: 1/4 of the screen */}
-            <div className=" w-1/4 p-4 bg-gray-100">
+            <div className="w-1/4 p-4 bg-gray-100">
                 <h2 className="text-black text-lg font-bold mb-4">ADMIN PANEL</h2>
                 <CardOptionAdmin
                     title="Create Course"
@@ -43,8 +44,7 @@ export default function AdminPage() {
                 {activeView === "createCourse" && <CreateCourseView />}
                 {activeView === "memosDue" && <MemosDueView />}
                 {activeView === "analytics" && <AnalyticsView />}
-                {/* Show a default message if no view is active */}
-                {activeView === null && <p>Please select an option on the left.</p>}
+                {/* No need for the default message since we are setting an initial view */}
             </div>
         </div>
     );

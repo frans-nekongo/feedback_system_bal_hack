@@ -7,7 +7,8 @@ import MyTestsView from "../components/MyTestsView";
 import SearchCourseView from "../components/SearchCourseView";
 
 export default function UserPage() {
-    const [activeView, setActiveView] = useState<"postQuestion" | "myTests" | "searchCourse" | null>(null);
+    // Set the default active view to "myTests"
+    const [activeView, setActiveView] = useState<"postQuestion" | "myTests" | "searchCourse">("myTests");
 
     const handleCardClick = (view: "postQuestion" | "myTests" | "searchCourse") => {
         setActiveView(view); // Set the active view based on which card is clicked
@@ -30,8 +31,7 @@ export default function UserPage() {
                 {activeView === "postQuestion" && <PostQuestionView />}
                 {activeView === "myTests" && <MyTestsView />}
                 {activeView === "searchCourse" && <SearchCourseView />}
-                {/* Show a default message if no view is active */}
-                {activeView === null && <p>Please select an option on the left.</p>}
+                {/* No need for the default message since we are setting an initial view */}
             </div>
         </div>
     );
