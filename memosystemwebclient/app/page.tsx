@@ -42,6 +42,17 @@ export default function Home() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-r from-blue-50 to-blue-100">
+            {/* Dynamic Feedback & Memo System title */}
+            <header className="mb-6 flex flex-col items-center text-center">
+                <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 sm:text-4xl md:text-3xl">
+                    🌟 Dynamic Feedback & Memo System 🌟
+                </h1>
+                <p className="text-lg text-gray-600 text-center mt-2 sm:text-base md:text-sm">
+                    Where learning never stops
+                </p>
+            </header>
+
+
             <main className="flex flex-col gap-8 w-full max-w-sm bg-white shadow-lg rounded-lg p-8">
                 <h1 className="text-3xl font-bold text-gray-800 text-center">Welcome Back! 👋</h1>
                 {error && <p className="text-red-500 mb-4 text-center">{error}</p>}

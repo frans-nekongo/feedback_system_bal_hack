@@ -1,6 +1,6 @@
 // import ballerina/cache;
 // import ballerina/io;
-import ballerina/log; // Import the logging module
+import ballerina/log; 
 import ballerina/sql;
 import ballerinax/kafka;
 import ballerinax/mysql;
@@ -23,12 +23,15 @@ type AuthRequest record {
     string username;
     string password;
 };
+//yes i know my password is here ,
+// im too lazy to store it seperatly back of mom
 
 type AuthResponse record {
-    string name; // Name of the user
-    string message; // Additional message if needed (optional)
+    string name; 
+    string message; 
 };
-
+const SECONDS_IN_A_YEAR = 31536000; // Approximate number of seconds 
+                                    //in a year why? why not!!!
 public function main() returns error? {
 
     // []]]]]]]]]][][]] consumer section ][ ][][] [] [ ] ]] 
