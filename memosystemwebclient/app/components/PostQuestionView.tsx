@@ -137,8 +137,8 @@ export default function PostQuestionView() {
             {showModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white p-5 rounded shadow-lg">
-                        <h3 className="font-bold text-lg">Confirm Submission</h3>
-                        <p>Are you sure you want to submit this question?</p>
+                        <h3 className="text-black font-bold text-lg">Confirm Submission</h3>
+                        <p className="text-black">Are you sure you want to submit this question?</p>
                         <div className="flex justify-end mt-4">
                             <button
                                 onClick={() => setShowModal(false)}
