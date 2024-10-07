@@ -13,8 +13,8 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ isOpen, onClose
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-lg font-bold mb-4">Confirmation</h2>
-                <p>Are you sure you want to submit this answer?</p>
+                <h2 className="text-black text-lg font-bold mb-4">Confirmation</h2>
+                <p className="text-black">Are you sure you want to submit this answer?</p>
                 <div className="flex justify-end mt-4">
                     <button
                         onClick={onClose}

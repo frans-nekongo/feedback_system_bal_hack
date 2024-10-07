@@ -117,7 +117,7 @@ export default function MemosDueView() {
                                         placeholder="Your answer"
                                         value={answers[question.question_number] || ""}
                                         onChange={(e) => handleAnswerChange(question.question_number, e.target.value)}
-                                        className="mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring focus:ring-blue-300"
+                                        className="text-black mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring focus:ring-blue-300"
                                     />
                                 </div>
                                 <button
