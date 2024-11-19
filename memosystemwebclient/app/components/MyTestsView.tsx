@@ -82,7 +82,7 @@ export default function MyTestsView() {
     }, {});
 
     return (
-        <div className="p-6 bg-gray-100 rounded-lg shadow-md">
+        <div className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow-md">
             <h2 className="text-black text-2xl font-bold mb-4">My Tests 📝</h2>
             {error && <p className="text-red-500">{error}</p>}
 

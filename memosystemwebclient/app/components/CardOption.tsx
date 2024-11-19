@@ -10,17 +10,26 @@ interface CardOptionProps {
 }
 
 const iconMap: Record<CardOptionTitle, JSX.Element> = {
-    "Post Question": <FaQuestionCircle className="mr-2 text-black" />,
-    "My Tests": <FaClipboardList className="mr-2 text-black" />,
-    "Search Course": <FaSearch className="mr-2 text-black" />,
+    "Post Question": <FaQuestionCircle className="text-blue-500 text-xl" />,
+    "My Tests": <FaClipboardList className="text-green-500 text-xl" />,
+    "Search Course": <FaSearch className="text-purple-500 text-xl" />,
 };
 
 export default function CardOption({ title, onClick }: CardOptionProps) {
     return (
-        <Card isPressable={true} isHoverable={true} className="w-full mb-4 cursor-pointer" onClick={onClick}>
-            <CardHeader className="flex items-center">
-                {iconMap[title]}
-                <p className="text-md font-bold text-black">{title}</p>
+        <Card
+            isPressable={true}
+            isHoverable={true}
+            className="w-full mb-4 cursor-pointer transform transition-transform duration-200 hover:scale-105 hover:shadow-md bg-white border border-gray-200 rounded-lg overflow-hidden"
+            onClick={onClick}
+        >
+            <CardHeader className="flex items-center space-x-3 px-3 py-4">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+                    {iconMap[title]}
+                </div>
+                <p className="text-md font-medium text-gray-800 tracking-wide">
+                    {title}
+                </p>
             </CardHeader>
         </Card>
     );
